@@ -1,36 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Edu Portal — Их, дээд сургуулиудын мэдээллийн нэгдсэн систем (mock)
 
-## Getting Started
+Хөгжүүлэлт
+- Node 18+
+- Суурилуулах: `npm install`
+- Асаах: `npm run dev` → `http://localhost:3000`
+- Линтер: `npm run lint`
 
-First, run the development server:
+Гол боломжууд
+- QS хэв маягтай UI, light/dark theme toggle
+- Нүүр, Их сургуулиуд, Зэрэглэл, Хөтөлбөрүүд, Харьцуулах, Байршлууд, Чиглүүлэг, Тухай хуудсууд
+- 12 их сургууль, 40+ хөтөлбөртэй өргөжүүлсэн mock өгөгдөл
+- Бүртгүүлэх/Нэвтрэх (localStorage), Нууц үг сэргээх (mock)
+- Өргөтгөсөн шүүлтүүр: хот, хөтөлбөр, төлбөр, элсэлтийн хувь
+- Хайлт, эрэмбэлэлт, pagination
+- Тэтгэлэгийн мэдээлэл их сургуулиудын дэлгэрэнгүй хуудсанд
+- Статистик болон dashboard нүүр хуудсанд
+- Хөтөлбөрүүдийг их сургуулиудтай холбосон
+- Skeleton loading, 404, error handling
+- SEO meta, sitemap/robots
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Техникийн дэлгэрэнгүй
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- localStorage-д суурилсан auth & favorites
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Дараагийн шат
+- MongoDB/Prisma ба бодит API холболт
+- Олон улсынчилал (i18n)
+- Админ удирдлагын систем
+- Нэмэлт статистик ба график
+- Элсэлтийн хөтөч

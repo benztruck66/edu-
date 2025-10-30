@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
+/* Enable dark mode via class */
+@variant dark (.dark &);
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+}
+
+/* Dark mode when .dark class is present */
+.dark {
+  --background: #131313;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,9 +21,10 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Fallback to system preference if no class */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
+  :root:not(.dark):not(.light) {
+    --background: #131313;
     --foreground: #ededed;
   }
 }
@@ -22,5 +32,28 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* subtle gradient background with noise overlay */
+html {
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(0,0,0,0.06), transparent 60%),
+    radial-gradient(800px 400px at -10% 10%, rgba(0,0,0,0.04), transparent 60%),
+    linear-gradient(180deg, rgba(0,0,0,0.02), transparent 20%);
+}
+
+.dark html {
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(255,255,255,0.08), transparent 60%),
+    radial-gradient(800px 400px at -10% 10%, rgba(255,255,255,0.06), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.04), transparent 20%);
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not(.dark):not(.light) {
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(255,255,255,0.08), transparent 60%),
+      radial-gradient(800px 400px at -10% 10%, rgba(255,255,255,0.06), transparent 60%),
+      linear-gradient(180deg, rgba(255,255,255,0.04), transparent 20%);
+  }
 }
