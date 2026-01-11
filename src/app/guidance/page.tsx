@@ -74,14 +74,48 @@ export default function GuidancePage() {
   const [ans, setAns] = useState<Answer>(initial);
   const [careerGoal, setCareerGoal] = useState<string>("general");
 
+  const [aiResults, setAiResults] = useState<Array<{ program: string; score: number; universities: any[] }>>([]);
+  const [useAI, setUseAI] = useState(true);
+  const [isLoadingAI, setIsLoadingAI] = useState(false);
+
   const programs = useMemo(
     () => Array.from(new Set(mockUniversities.flatMap((u) => u.programs))),
     []
   );
-  const results = useMemo(() => {
+  
+  const localResults = useMemo(() => {
     const scored = programs.map((p) => ({ program: p, fit: scoreProgram(ans, p) }));
     return scored.sort((a, b) => b.fit - a.fit).slice(0, 10);
   }, [programs, ans]);
+
+  // AI зөвлөмж авах
+  useEffect(() => {
+    if (!useAI) {
+      setAiResults([]);
+      return;
+    }
+
+    setIsLoadingAI(true);
+    fetch("/api/ai/recommend", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ preferences: ans, careerGoal }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setAiResults(data.recommendations || []);
+      })
+      .catch(() => {
+        setAiResults([]);
+      })
+      .finally(() => {
+        setIsLoadingAI(false);
+      });
+  }, [ans, careerGoal, useAI]);
+
+  const results = useAI && aiResults.length > 0
+    ? aiResults.map((r) => ({ program: r.program, fit: r.score }))
+    : localResults;
 
   useEffect(() => {
     if (!user) {
@@ -186,11 +220,29 @@ export default function GuidancePage() {
           </div>
         </div>
 
-        <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-4">
           <div className="rounded-lg border border-zinc-200 dark:border-white/10 p-4">
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-medium">Тохирох хөтөлбөрүүд</h2>
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">Топ 10</span>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-2 text-xs cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={useAI}
+                    onChange={(e) => setUseAI(e.target.checked)}
+                    className="rounded"
+                  />
+                  <span className="text-zinc-600 dark:text-zinc-400">AI зөвлөмж</span>
+                </label>
+                {isLoadingAI && (
+                  <div className="flex gap-1">
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
+                  </div>
+                )}
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">Топ 10</span>
+              </div>
             </div>
             <div className="space-y-3">
               {results.map((r, idx) => (

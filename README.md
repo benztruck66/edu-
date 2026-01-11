@@ -1,34 +1,93 @@
-Edu Portal — Их, дээд сургуулиудын мэдээллийн нэгдсэн систем (mock)
+Edu Portal — Их, дээд сургуулиудын мэдээллийн нэгдсэн систем
 
-Хөгжүүлэлт
-- Node 18+
-- Суурилуулах: `npm install`
-- Асаах: `npm run dev` → `http://localhost:3000`
-- Линтер: `npm run lint`
+## 🚀 Хөгжүүлэлт
 
-Гол боломжууд
+### Хурдан эхлэх:
+```bash
+# 1. Dependencies суулгах
+npm install
+
+# 2. MongoDB холбох (.env файл үүсгэх)
+# DATABASE_URL="mongodb://localhost:27017/edu-portal"
+
+# 3. Database setup
+npm run db:generate
+npm run db:push
+npm run db:seed
+
+# 4. Асаах
+npm run dev
+```
+
+Дэлгэрэнгүй: `QUICK_START.md` файлд байна.
+
+## ✨ Гол боломжууд
+
+### Хэрэглэгчид
 - QS хэв маягтай UI, light/dark theme toggle
-- Нүүр, Их сургуулиуд, Зэрэглэл, Хөтөлбөрүүд, Харьцуулах, Байршлууд, Чиглүүлэг, Тухай хуудсууд
-- 12 их сургууль, 40+ хөтөлбөртэй өргөжүүлсэн mock өгөгдөл
-- Бүртгүүлэх/Нэвтрэх (localStorage), Нууц үг сэргээх (mock)
-- Өргөтгөсөн шүүлтүүр: хот, хөтөлбөр, төлбөр, элсэлтийн хувь
-- Хайлт, эрэмбэлэлт, pagination
-- Тэтгэлэгийн мэдээлэл их сургуулиудын дэлгэрэнгүй хуудсанд
-- Статистик болон dashboard нүүр хуудсанд
-- Хөтөлбөрүүдийг их сургуулиудтай холбосон
-- Skeleton loading, 404, error handling
-- SEO meta, sitemap/robots
+- Нүүр, Их сургуулиуд, Зэрэглэл, Хөтөлбөрүүд, Харьцуулах хуудсууд
+- Хайлт, шүүлтүүр, эрэмбэлэлт, pagination
+- AI чатбот, ухаалаг хайлт, зөвлөмж систем
+- Skeleton loading, 404, SEO meta
 
-Техникийн дэлгэрэнгүй
-- Next.js 16 App Router
-- React 19
-- TypeScript
-- Tailwind CSS 4
-- localStorage-д суурилсан auth & favorites
+### 🆕 Шинэ функцүүд
 
-Дараагийн шат
-- MongoDB/Prisma ба бодит API холболт
-- Олон улсынчилал (i18n)
-- Админ удирдлагын систем
-- Нэмэлт статистик ба график
-- Элсэлтийн хөтөч
+#### Сургуулиудын мэдээллийн API 🎓
+- Database-аас сургуулиудын мэдээлэл авах
+- Шүүлтүүр, хайлт, эрэмбэлэлт, pagination дэмжигдсэн
+- CRUD операцууд (Create, Read, Update, Delete)
+- API: `/api/universities`
+- React hooks: `useUniversities`, `useUniversity`
+
+#### Сургуулийн админ эрх 🎓
+- Сургууль бүрт өөрийн админ эрх олгох
+- Бусад сургуулиас хамаарахгүй, зөвхөн өөрийн сургуулийн мэдээлэл удирдах
+- Эрхийн scope: мэдээлэл засах, тэтгэлэг удирдах, тайлан харах
+- API: `/api/university-admin`
+
+### Database
+- ✅ MongoDB + Prisma ORM
+- ✅ Бүрэн database schema (User, University, Scholarship, Payment, Request)
+- ✅ Role-based access control (SUPER_ADMIN, UNIVERSITY_ADMIN, TEACHER, ALUMNI, USER)
+
+## 📁 Файлууд
+
+### Database
+- `prisma/schema.prisma` - Database schema
+- `src/lib/db.ts` - Prisma client
+
+### API Routes
+- `src/app/api/universities/` - Сургуулиудын мэдээллийн API (GET, POST)
+- `src/app/api/universities/[id]/` - Тодорхой сургуулийн API (GET, PATCH, DELETE)
+- `src/app/api/university-admin/` - Сургуулийн админ эрх API
+
+### Frontend
+- `src/app/admin/page.tsx` - Админ хуудас
+- `src/hooks/useUniversities.ts` - Сургуулиудын жагсаалт авах hook
+- `src/hooks/useUniversity.ts` - Тодорхой сургуулийн мэдээлэл авах hook
+
+## 📚 Документаци
+
+- `QUICK_START.md` - Хурдан эхлэх заавар ⚡
+- `MONGODB_SETUP.md` - MongoDB setup зааварчилгаа
+- `UNIVERSITIES_API.md` - Сургуулиудын API зааварчилгаа
+- `UPGRADE_RECOMMENDATIONS.md` - Сайжруулалтын зөвлөмж
+
+## ✨ Онцлог
+
+- ✅ **Database Integration** - MongoDB + Prisma ORM
+- ✅ **API Routes** - RESTful API бүрэн дэмжигдсэн
+- ✅ **Fallback System** - Database холбогдохгүй бол mock data ашиглана
+- ✅ **Seed Script** - Mock data-г database-д оруулах
+- ✅ **Error Handling** - Алдааны мэдэгдэл, fallback механизм
+
+## 🔧 Дараагийн шат
+
+- [x] Database integration
+- [x] API routes
+- [x] Seed script
+- [x] Frontend API integration
+- [ ] Authentication систем сайжруулах (JWT, bcrypt)
+- [ ] Email систем
+- [ ] File upload
+- [ ] Real AI integration (OpenAI API)

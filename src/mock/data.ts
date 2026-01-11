@@ -18,6 +18,8 @@ export type University = {
   tuitionMntPerYear?: number; // mock
   acceptanceRatePct?: number; // mock
   scholarships?: Scholarship[]; // mock
+  logo?: string; // Логоны URL
+  images?: string[]; // Зургуудын URL-ууд
 };
 
 export const mockUniversities: University[] = [
@@ -26,13 +28,45 @@ export const mockUniversities: University[] = [
     name: "Монгол Улсын Их Сургууль",
     city: "Улаанбаатар",
     qsRank: 751,
-    programs: ["Компьютер", "Эдийн засаг", "Физик", "Математик", "Хүмүүнлэг", "Биологи"],
-    description: "Монголын тэргүүлэгч судалгааны их сургууль. 1942 онд байгуулагдсан түүхэн их сургууль.",
+    programs: [
+      "Компьютер",
+      "Программ хангамж",
+      "Мэдээллийн технологи",
+      "Мэдээллийн систем",
+      "Мультимедиа технологи",
+      "Компьютерын сүлжээ",
+      "Математик",
+      "Физик",
+      "Хими",
+      "Биологи",
+      "Газар зүй",
+      "Биотехнологи",
+      "Түүх",
+      "Гадаад хэл",
+      "Хэл шинжлэл",
+      "Утга зохиол",
+      "Нийгмийн ажил",
+      "Сэтгүүл зүй",
+      "Эдийн засаг",
+      "Санхүү",
+      "Нягтлан бодох бүртгэл",
+      "Маркетинг",
+      "Менежмент",
+      "Худалдаа",
+      "Жуулчлал",
+      "Хууль зүй",
+      "Олон улсын харилцаа",
+      "Удирдлага",
+      "Улс төр"
+    ],
+    description: "Монголын тэргүүлэгч судалгааны их сургууль. 1942 онд байгуулагдсан түүхэн их сургууль. Программ хангамж хөтөлбөрт онолын суурь маш хүчтэй, алгоритм, математикийн суурь, Data Science, AI, ML талд давуу. Судалгаа, академик чиглэл хүчтэй. Coding-ийн 'гадагш нь гаргах' чанар сайн.",
     website: "https://www.num.edu.mn",
     email: "info@num.edu.mn",
     phone: "+976-11-123456",
     tuitionMntPerYear: 4500000,
     acceptanceRatePct: 35,
+    logo: "/logos/num.png",
+    images: [],
     scholarships: [
       { name: "Суралцагчийн тэтгэлэг", type: "merit", amountMnt: 1500000, description: "Өндөр голч авсан оюутнуудад олгогдоно" },
       { name: "Нийгмийн тэтгэлэг", type: "need-based", amountMnt: 1000000, description: "Нийгмийн эмзэг бүлгийн оюутнуудад" },
@@ -43,17 +77,18 @@ export const mockUniversities: University[] = [
     id: "must",
     name: "ШУТИС",
     city: "Улаанбаатар",
-    qsRank: 801,
-    programs: ["Мэдээллийн технологи", "Барилга", "Энергетик", "Автомат удирдлага", "Программ хангамж"],
-    description: "Инженер, технологийн чиглэлийн томоохон сургууль. Техникийн боловсрол олгодог тэргүүлэгч их сургууль.",
+    qsRank: 1201,
+    programs: ["Мэдээлэл, Холбооны Технологийн Сургууль (МХТС)", "Барилга, Архитектурын Сургууль (БАС)", "Эрчим Хүчний Сургууль (ЭХС)", "Хэрэглээний Шинжлэх Ухааны Сургууль (ХШУС)", "Программ хангамжийн инженерчлэл (МХТС)"],
+    description: "Монгол улсын инженер, технологийн салбарын тэргүүлэх сургууль. 1959 онд байгуулагдсан, олон улсын магадлан итгэмжлэгдсэн хөтөлбөрүүдтэй.",
     website: "https://www.must.edu.mn",
     email: "contact@must.edu.mn",
     phone: "+976-11-654321",
-    tuitionMntPerYear: 4200000,
-    acceptanceRatePct: 40,
+    tuitionMntPerYear: 3800000,
+    acceptanceRatePct: 45,
+    logo: "/logos/must.png",
+    images: [],
     scholarships: [
-      { name: "МТ тэтгэлэг", type: "merit", amountMnt: 1800000, description: "Мэдээллийн технологийн чиглэлийн оюутнуудад" },
-      { name: "Инженерийн тэтгэлэг", type: "merit", amountMnt: 1600000, description: "Инженерийн чиглэлийн тэргүүн оюутнуудад" },
+      { name: "ШУТИС-ийн нэрэмжит тэтгэлэг", type: "merit", amountMnt: 1750000, description: "Голч оноо (GPA): 3.6+, ЭЕШ-ын оноо (шинэ элсэгч): 750+, Бүх мэргэжлээр" },
     ],
   },
   {
@@ -68,6 +103,8 @@ export const mockUniversities: University[] = [
     phone: "+976-11-777777",
     tuitionMntPerYear: 6500000,
     acceptanceRatePct: 25,
+    // logo: "/logos/mnums.png", // Logo оруулаагүй байна
+    images: [],
     scholarships: [
       { name: "Анагаах ухааны тэтгэлэг", type: "merit", amountMnt: 2500000, description: "Анагаахын чиглэлийн шилдэг оюутнуудад" },
       { name: "Хөдөөгийн эмч", type: "need-based", amountMnt: 3000000, description: "Хөдөөд ажиллах амлалт өгсөн оюутнуудад" },
@@ -85,6 +122,8 @@ export const mockUniversities: University[] = [
     phone: "+976-11-888888",
     tuitionMntPerYear: 4800000,
     acceptanceRatePct: 45,
+    // logo: "/logos/muisc.png", // Logo оруулаагүй байна
+    images: [],
     scholarships: [
       { name: "Бизнесийн тэтгэлэг", type: "merit", amountMnt: 1400000, description: "Бизнесийн чиглэлийн оюутнуудад" },
     ],
@@ -101,6 +140,8 @@ export const mockUniversities: University[] = [
     phone: "+976-7037-0000",
     tuitionMntPerYear: 3000000,
     acceptanceRatePct: 55,
+    // logo: "/logos/bdu.png", // Logo оруулаагүй байна
+    images: [],
   },
   {
     id: "ues",
@@ -114,6 +155,8 @@ export const mockUniversities: University[] = [
     phone: "+976-7711-9696",
     tuitionMntPerYear: 4300000,
     acceptanceRatePct: 42,
+    // logo: "/logos/ues.png", // Logo оруулаагүй байна
+    images: [],
   },
   {
     id: "mue",
@@ -127,6 +170,8 @@ export const mockUniversities: University[] = [
     phone: "+976-11-444444",
     tuitionMntPerYear: 3500000,
     acceptanceRatePct: 50,
+    // logo: "/logos/mue.png", // Logo оруулаагүй байна
+    images: [],
   },
   {
     id: "msue",
@@ -140,45 +185,8 @@ export const mockUniversities: University[] = [
     phone: "+976-11-555555",
     tuitionMntPerYear: 3800000,
     acceptanceRatePct: 38,
-  },
-  {
-    id: "erdenet",
-    name: "Эрдэнэтийн Их Сургууль",
-    city: "Эрдэнэт",
-    qsRank: 1801,
-    programs: ["Уул уурхай", "Геологи", "Барилга", "МТ", "Бизнес"],
-    description: "Эрдэнэт хотын томоохон их сургууль. Уул уурхай, техникийн чиглэлээр мэргэжилтэн бэлтгэнэ.",
-    website: "https://www.erdenet-university.edu.mn",
-    email: "info@erdenet-uni.mn",
-    phone: "+976-1352-12345",
-    tuitionMntPerYear: 2800000,
-    acceptanceRatePct: 60,
-  },
-  {
-    id: "darkhan",
-    name: "Дархан Их Сургууль",
-    city: "Дархан",
-    qsRank: 1901,
-    programs: ["Барилга", "Эдийн засаг", "Багш", "МТ"],
-    description: "Дархан хотын их сургууль. Бүс нутгийн боловсролын түвшинг дэмжин хөгжүүлнэ.",
-    website: "https://www.darkhan-uni.edu.mn",
-    email: "contact@darkhan-uni.mn",
-    phone: "+976-1372-98765",
-    tuitionMntPerYear: 2500000,
-    acceptanceRatePct: 65,
-  },
-  {
-    id: "khovd",
-    name: "Ховд Их Сургууль",
-    city: "Ховд",
-    qsRank: 2001,
-    programs: ["Багш", "Эдийн засаг", "Хөдөө аж ахуй", "Хүмүүнлэг"],
-    description: "Баруун бүсийн их сургууль. Орон нутгийн хөгжилд үйлчилдэг.",
-    website: "https://www.khovd-university.edu.mn",
-    email: "info@khovd-uni.mn",
-    phone: "+976-1432-11111",
-    tuitionMntPerYear: 2200000,
-    acceptanceRatePct: 70,
+    // logo: "/logos/msue.png", // Logo оруулаагүй байна
+    images: [],
   },
   {
     id: "otgontenger",
@@ -192,6 +200,8 @@ export const mockUniversities: University[] = [
     phone: "+976-11-666666",
     tuitionMntPerYear: 5200000,
     acceptanceRatePct: 48,
+    // logo: "/logos/otgontenger.png", // Logo оруулаагүй байна
+    images: [],
   },
 ];
 

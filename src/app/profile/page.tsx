@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useFavorites } from "@/hooks/useFavorites";
-import { mockUniversities } from "@/mock/data";
+import { useUniversities } from "@/hooks/useUniversities";
 import Link from "next/link";
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const router = useRouter();
   const { ids } = useFavorites();
+  const { universities } = useUniversities({ pageSize: 100 });
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");
   const [editing, setEditing] = useState(false);
@@ -29,12 +30,29 @@ export default function ProfilePage() {
     }
   }, [user]);
 
-  const favoriteUniversities = mockUniversities.filter((u) => ids.includes(u.id));
+  const favoriteUniversities = universities.filter((u) => ids.includes(u.id));
 
-  function handleSave() {
-    // In real app, would save to backend
-    setEditing(false);
+  async function handleSave() {
+    try {
+      const res = await fetch("/api/auth/me", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name }),
+      });
+      if (res.ok) {
+        setEditing(false);
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Error saving profile:", error);
+    }
   }
+
+  const memberSince = user?.createdAt 
+    ? new Date(user.createdAt).toLocaleDateString('mn-MN', { year: 'numeric', month: 'long', day: 'numeric' })
+    : "Өнөөдөр";
 
   if (!user) return null;
 
@@ -75,6 +93,26 @@ export default function ProfilePage() {
                 <label className="text-sm text-zinc-600 dark:text-zinc-400 block mb-1">И-мэйл</label>
                 <p className="font-medium">{email}</p>
               </div>
+
+              {user?.role && (
+                <div>
+                  <label className="text-sm text-zinc-600 dark:text-zinc-400 block mb-1">Эрх</label>
+                  <p className="font-medium">
+                    {user.role === "SUPER_ADMIN" ? "🔐 Системийн Админ" :
+                     user.role === "UNIVERSITY_ADMIN" ? "🏛️ Сургуулийн Админ" :
+                     user.role === "TEACHER" ? "👨‍🏫 Багш" :
+                     user.role === "ALUMNI" ? "🎓 Төгсөгч" :
+                     "👤 Хэрэглэгч"}
+                  </p>
+                </div>
+              )}
+
+              {user?.phone && (
+                <div>
+                  <label className="text-sm text-zinc-600 dark:text-zinc-400 block mb-1">Утас</label>
+                  <p className="font-medium">{user.phone}</p>
+                </div>
+              )}
 
               {editing && (
                 <button
@@ -136,8 +174,14 @@ export default function ProfilePage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-zinc-600 dark:text-zinc-400">Гишүүн болсон</span>
-                <span className="text-sm">Өнөөдөр</span>
+                <span className="text-sm">{memberSince}</span>
               </div>
+              {isAdmin && (
+                <div className="flex items-center justify-between pt-2 border-t border-zinc-200 dark:border-white/10">
+                  <span className="text-sm text-purple-600 dark:text-purple-400">Админ эрх</span>
+                  <span className="text-sm font-medium text-purple-600 dark:text-purple-400">✓</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -163,6 +207,14 @@ export default function ProfilePage() {
               >
                 🧭 Чиглүүлэг авах
               </Link>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="block w-full text-left rounded-md border border-purple-300 dark:border-purple-900/30 text-purple-600 dark:text-purple-400 px-3 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-900/10 font-medium"
+                >
+                  🔐 Админ хуудас
+                </Link>
+              )}
               <button
                 onClick={logout}
                 className="w-full text-left rounded-md border border-red-300 dark:border-red-900/30 text-red-600 dark:text-red-400 px-3 py-2 text-sm hover:bg-red-50 dark:hover:bg-red-900/10"

@@ -1,0 +1,291 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Хэрэглэгчийн модел
+model User {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  email         String   @unique
+  name          String
+  password      String   // bcrypt хадгална
+  role          UserRole @default(USER)
+  phone         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Холбоосууд
+  universityAdmins UniversityAdmin[] // Сургуулийн админ эрх
+  requests         Request[]         // Хүсэлтүүд
+  testimonials     Testimonial[]     // Сэтгэгдлүүд
+  favorites        String[]         // Таалагдсан сургуулиудын ID-ууд
+  eventRegistrations EventRegistration[] // Үйл явдалд бүртгэл
+
+  // Indexes - Query performance сайжруулах
+  // email нь @unique тул автоматаар index үүсгэдэг
+  @@index([role])
+  @@map("users")
+}
+
+enum UserRole {
+  SUPER_ADMIN      // Системийн админ
+  UNIVERSITY_ADMIN // Сургуулийн админ
+  TEACHER          // Багш
+  ALUMNI           // Төгсөгч
+  USER             // Энгийн хэрэглэгч
+}
+
+// Их сургуулийн модел
+model University {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  city            String
+  qsRank          Int
+  programs        String[] // Хөтөлбөрүүдийн жагсаалт
+  description     String?
+  website         String?
+  email           String?
+  phone           String?
+  tuitionMntPerYear Int?   // Жилийн төлбөр (MNT)
+  acceptanceRatePct Float? // Элсэлтийн хувь
+  logo            String?  // Логоны URL
+  images          String[] // Зургуудын URL-ууд
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Холбоосууд
+  admins          UniversityAdmin[] // Сургуулийн админууд
+  scholarships    Scholarship[]    // Тэтгэлгүүд
+  payments        Payment[]        // Төлбөрийн мэдээлэл
+
+  // Indexes - Query performance сайжруулах
+  @@index([city])
+  @@index([qsRank])
+  @@index([tuitionMntPerYear])
+  @@index([acceptanceRatePct])
+  @@index([name])
+  @@map("universities")
+}
+
+// Сургуулийн админ эрх
+model UniversityAdmin {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
+  universityId String   @db.ObjectId
+  
+  // Эрхийн scope
+  canEditInfo      Boolean @default(true)  // Мэдээлэл засах
+  canManageScholarships Boolean @default(true) // Тэтгэлэг удирдах
+  canViewReports   Boolean @default(true)  // Тайлан харах
+  
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Холбоосууд
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, universityId])
+  @@map("university_admins")
+}
+
+// Тэтгэлэг
+model Scholarship {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  universityId String   @db.ObjectId
+  
+  name         String
+  type         ScholarshipType
+  amountMnt    Int?     // Тэтгэлгийн хэмжээ (MNT)
+  description  String
+  requirements String[] // Шалгуурууд
+  deadline     DateTime? // Эцсийн хугацаа
+  isActive     Boolean  @default(true)
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Холбоосууд
+  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  @@index([universityId])
+  @@map("scholarships")
+}
+
+enum ScholarshipType {
+  MERIT         // Чадварын
+  NEED_BASED    // Нийгмийн
+  ATHLETIC      // Спортын
+  INTERNATIONAL // Олон улсын
+  RESEARCH      // Судалгааны
+}
+
+// Төлбөрийн мэдээлэл
+model Payment {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  universityId String   @db.ObjectId
+  
+  // Төлбөрийн мэдээлэл
+  program      String   // Хөтөлбөр
+  tuitionMnt   Int      // Төлбөр (MNT)
+  period       String   // Хугацаа (жил, улирал, сар)
+  additionalFees Json?  // Нэмэлт хураамжууд
+  
+  academicYear String?  // Эхлэх он
+  isActive     Boolean  @default(true)
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Холбоосууд
+  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  @@index([universityId])
+  @@map("payments")
+}
+
+// Хүсэлт
+model Request {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String      @db.ObjectId
+  
+  type        RequestType
+  subject     String
+  message     String
+  status      RequestStatus @default(PENDING)
+  
+  // Нэмэлт мэдээлэл
+  metadata    Json?       // Нэмэлт мэдээлэл (сургуулийн ID, тэтгэлгийн ID гэх мэт)
+  adminNotes  String?     // Админы тэмдэглэл
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Холбоосууд
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("requests")
+}
+
+enum RequestType {
+  INFO_REQUEST      // Мэдээлэл авах
+  SCHOLARSHIP_APPLY // Тэтгэлэгт өргөдөл
+  FEEDBACK          // Санал хүсэлт
+  COMPLAINT         // Гомдол
+  OTHER             // Бусад
+}
+
+enum RequestStatus {
+  PENDING    // Хүлээгдэж байна
+  REVIEWING  // Шалгаж байна
+  APPROVED   // Баталсан
+  REJECTED   // Татгалзсан
+  COMPLETED   // Дууссан
+}
+
+// Сэтгэгдэл
+model Testimonial {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  
+  // Сэтгэгдлийн мэдээлэл
+  rating      Int      // Үнэлгээ (1-5)
+  text        String   // Сэтгэгдлийн текст
+  university  String?  // Их сургуулийн нэр
+  program     String?  // Хөтөлбөрийн нэр
+  year        String?  // Он
+  
+  // Модераци
+  isApproved  Boolean  @default(false) // Админаар баталсан эсэх
+  isActive    Boolean  @default(true)
+  
+  // Статистик
+  helpfulCount Int     @default(0) // Тустай гэж үнэлсэн тоо
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Холбоосууд
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isApproved])
+  @@index([isActive])
+  @@index([rating])
+  @@map("testimonials")
+}
+
+// Үйл явдал
+model Event {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  date        DateTime
+  time        String?  // "10:00 - 18:00" format
+  location    String
+  type        EventType
+  icon        String?  // Emoji icon
+  description String
+  spots       Int      // Нийт байр
+  registered  Int      @default(0) // Бүртгэгдсэн тоо
+  online      Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Холбоосууд
+  registrations EventRegistration[]
+
+  @@index([type])
+  @@index([date])
+  @@index([isActive])
+  @@map("events")
+}
+
+enum EventType {
+  EXHIBITION    // Үзэсгэлэн
+  WEBINAR       // Вебинар
+  TRAINING      // Сургалт
+  COURSE        // Курс
+  INTRODUCTION  // Танилцуулга
+}
+
+// Үйл явдалд бүртгэл
+model EventRegistration {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  eventId     String   @db.ObjectId
+  
+  registeredAt DateTime @default(now())
+
+  // Холбоосууд
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId]) // Нэг хэрэглэгч нэг үйл явдалд нэг удаа бүртгүүлнэ
+  @@index([userId])
+  @@index([eventId])
+  @@map("event_registrations")
+}
+
+// Newsletter subscription
+model NewsletterSubscription {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  email       String   @unique
+  isActive    Boolean  @default(true)
+  subscribedAt DateTime @default(now())
+  unsubscribedAt DateTime?
+
+  @@map("newsletter_subscriptions")
+}

@@ -1,7 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
-const events = [
+const initialEvents = [
   {
     id: 1,
     title: "Их сургуулийн үзэсгэлэн 2025",
@@ -72,12 +74,148 @@ const events = [
 const eventTypes = ["Бүгд", "Үзэсгэлэн", "Вебинар", "Сургалт", "Курс", "Танилцуулга"];
 
 export default function EventsPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const [events, setEvents] = useState(initialEvents);
+  const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("Бүгд");
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
+  const [registeringEventId, setRegisteringEventId] = useState<string | number | null>(null);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+
+  // Database-аас events авах
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/events");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.events && data.events.length > 0) {
+            // Database-аас ирсэн events ашиглах
+            setEvents(data.events.map((e: any) => ({
+              id: e.id,
+              title: e.title,
+              date: new Date(e.date).toISOString().split('T')[0],
+              time: e.time || "",
+              location: e.location,
+              type: e.type === "EXHIBITION" ? "Үзэсгэлэн" : 
+                    e.type === "WEBINAR" ? "Вебинар" :
+                    e.type === "TRAINING" ? "Сургалт" :
+                    e.type === "COURSE" ? "Курс" :
+                    e.type === "INTRODUCTION" ? "Танилцуулга" : e.type,
+              icon: e.icon || "📅",
+              description: e.description,
+              spots: e.spots,
+              registered: e.registered || 0,
+              online: e.online || false,
+            })));
+          }
+          // Хэрэв database-д events байхгүй бол initialEvents ашиглах
+        }
+      } catch (error) {
+        console.error("Error fetching events:", error);
+        // Алдаа гарвал initialEvents ашиглах
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const filtered = events
     .filter(e => selectedType === "Бүгд" || e.type === selectedType)
     .filter(e => !showOnlineOnly || e.online);
+
+  const handleEventRegister = async (eventId: string | number, eventTitle: string) => {
+    if (!user) {
+      if (confirm("Үйл явдалд бүртгүүлэхийн тулд нэвтрэх шаардлагатай. Нэвтрэх хуудас руу очих уу?")) {
+        router.push("/login");
+      }
+      return;
+    }
+
+    if (registeringEventId === eventId) return;
+
+    setRegisteringEventId(eventId);
+    try {
+      const token = localStorage.getItem("edu_portal_token");
+      const res = await fetch(`/api/events/${eventId}/register`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(`✅ Амжилттай! Та "${eventTitle}" үйл явдалд бүртгүүллээ.`);
+        
+        // Бүртгэлийн тоог шинэчлэх
+        setEvents(prevEvents => 
+          prevEvents.map(event => 
+            event.id === eventId && event.registered < event.spots
+              ? { ...event, registered: event.registered + 1 }
+              : event
+          )
+        );
+      } else {
+        const errorMsg = data.error || "Үйл явдалд бүртгүүлэхэд алдаа гарлаа";
+        console.error("Registration error:", data);
+        alert(`❌ Алдаа: ${errorMsg}`);
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      alert("❌ Алдаа: Үйл явдалд бүртгүүлэхэд алдаа гарлаа. Дахин оролдоно уу.");
+    } finally {
+      setRegisteringEventId(null);
+    }
+  };
+
+  const handleNewsletterSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!newsletterEmail.trim()) {
+      alert("И-мэйл хаяг оруулна уу");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newsletterEmail)) {
+      alert("И-мэйл формат буруу байна");
+      return;
+    }
+
+    setNewsletterLoading(true);
+    try {
+      const res = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: newsletterEmail }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(`✅ Амжилттай! Та ${newsletterEmail} хаяг дээр үйл явдлын мэдэгдэл хүлээн авах болно.`);
+        setNewsletterEmail("");
+      } else {
+        const errorMsg = data.error || "Бүртгүүлэхэд алдаа гарлаа";
+        console.error("Newsletter subscription error:", data);
+        alert(`❌ Алдаа: ${errorMsg}`);
+      }
+    } catch (error) {
+      console.error("Newsletter subscription error:", error);
+      alert("❌ Алдаа: Бүртгүүлэхэд алдаа гарлаа. Дахин оролдоно уу.");
+    } finally {
+      setNewsletterLoading(false);
+    }
+  };
 
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
@@ -177,14 +315,21 @@ export default function EventsPage() {
                   </div>
 
                   <button
-                    disabled={isFull}
+                    onClick={() => handleEventRegister(event.id, event.title)}
+                    disabled={isFull || registeringEventId === event.id}
                     className={`w-full rounded-md px-4 py-2 text-sm font-medium transition ${
                       isFull
                         ? "bg-zinc-200 dark:bg-zinc-700 text-zinc-500 cursor-not-allowed"
+                        : registeringEventId === event.id
+                        ? "bg-blue-400 text-white cursor-wait"
                         : "bg-blue-600 text-white hover:bg-blue-700"
                     }`}
                   >
-                    {isFull ? "Дүүрсэн" : "Бүртгүүлэх"}
+                    {isFull 
+                      ? "Дүүрсэн" 
+                      : registeringEventId === event.id 
+                      ? "Бүртгэж байна..." 
+                      : "Бүртгүүлэх"}
                   </button>
                 </div>
               </div>
@@ -208,16 +353,23 @@ export default function EventsPage() {
         <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
           Шинэ үйл явдлын талаар и-мэйлээр мэдэгдэл авах
         </p>
-        <div className="flex gap-2 max-w-md mx-auto">
+        <form onSubmit={handleNewsletterSubscribe} className="flex gap-2 max-w-md mx-auto">
           <input
             type="email"
+            value={newsletterEmail}
+            onChange={(e) => setNewsletterEmail(e.target.value)}
             placeholder="И-мэйл хаяг..."
+            required
             className="flex-1 rounded-md border border-zinc-300 dark:border-white/20 bg-white dark:bg-transparent px-4 py-2 text-sm outline-none"
           />
-          <button className="rounded-md bg-purple-600 text-white px-6 py-2 text-sm hover:bg-purple-700">
-            Бүртгүүлэх
+          <button 
+            type="submit"
+            disabled={newsletterLoading}
+            className="rounded-md bg-purple-600 text-white px-6 py-2 text-sm hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {newsletterLoading ? "Түр хүлээнэ үү..." : "Бүртгүүлэх"}
           </button>
-        </div>
+        </form>
       </div>
     </section>
   );

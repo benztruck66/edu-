@@ -19,6 +19,3 @@ export function StatsCard({ label, value, icon, description }: Props) {
     </div>
   );
 }
-
-
-

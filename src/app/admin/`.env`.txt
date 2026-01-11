@@ -1,0 +1,1 @@
+DATABASE_URL="mongodb+srv://benztruck66:Kiedpee1231@cluster0.tx470lz.mongodb.net/edu-portal?retryWrites=true&w=majority&appName=Cluster0"

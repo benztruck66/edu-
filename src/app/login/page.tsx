@@ -18,8 +18,8 @@ export default function LoginPage() {
     try {
       await login(email, password);
       router.push("/");
-    } catch {
-      setError("Нэвтрэх амжилтгүй. Дахин оролдоно уу.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Нэвтрэх амжилтгүй. Дахин оролдоно уу.");
     } finally {
       setLoading(false);
     }
