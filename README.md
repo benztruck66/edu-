@@ -3,21 +3,6 @@ Edu Portal — Их, дээд сургуулиудын мэдээллийн нэ
 ## 🚀 Хөгжүүлэлт
 
 ### Ажиллуулах:
-```bash
-# 1. Dependencies суулгах
-npm install
-
-# 2. MongoDB холбох (.env файл үүсгэх)
-# DATABASE_URL="mongodb://localhost:27017/edu-portal"
-
-# 3. Database setup
-npm run db:generate
-npm run db:push
-npm run db:seed
-
-# 4. Асаах
-npm run dev
-```
 
 Дэлгэрэнгүй: `QUICK_START.md` файлд байна.
 
